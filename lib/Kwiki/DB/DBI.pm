@@ -2,7 +2,10 @@ package Kwiki::DB::DBI;
 use Kwiki::DB -Base;
 use base 'DBI';
 
-our $VERSION = '0.01';
+const class_id    => 'dbi';
+const class_title => 'Kwiki DBI';
+
+our $VERSION = '0.02';
 
 sub connect {
      my ($dsn, $user, $pass, $attr, $old_driver) =  @_;
@@ -21,24 +24,19 @@ __END__
   package Kwiki::MyPlugin;
   use Kwiki::Plugin -Base;
 
-  const db_class => 'Kwiki::DB::DBI';
-
   sub action {
-      $self->db->connect($dsn,$user,$password);
-      $self->db->do(...);
-      $self->db->$dbi_method(...);
+      $self->hub->dbi->connect($dsn,$user,$password);
+      $self->hub->dbi->do(...);
+      $self->hub->dbi->$dbi_method(...);
   }
 
 =head1 DESCRIPTION
 
 This class is for those pure DBI.pm lover. It does nothing but let DBI.pm do
-all the work. Plugin writers who want to use this module, just put a line:
-
-    const db_class => 'Kwiki::DB::DBI';
-
-in there plugin module, and there will be a convienent C<$hub->db> reference
-to an instantiated DBI object. After that, just follow the manual of DBI.pm to
-use the DBI object.
+all the work. Plugin writers who want to use this module, just add this module
+into your C<plugins> file, and there will be a convienent C<$hub->dbi>
+reference to an instantiated DBI object. After that, just follow the manual of
+DBI.pm to use the DBI object.
 
 =head1 SEE ALSO
 

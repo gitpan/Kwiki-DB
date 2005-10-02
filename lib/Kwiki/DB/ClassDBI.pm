@@ -1,8 +1,10 @@
 package Kwiki::DB::ClassDBI;
 use Kwiki::DB -Base;
-# our @EXPORT = qw(entity);
 
-our $VERSION = '0.01';
+our $VERSION = '0.03';
+
+const class_id    => 'cdbi';
+const class_title => 'Kwiki ClassDBI';
 
 field '_base';
 field entities => {};
@@ -46,40 +48,38 @@ __END__
   package Kwiki::MyPlugin;
   use Kwiki::Plugin -Base;
 
-  const db_class => 'Kwiki::DB::ClassDBI';
-
-
   # setup Music::Artist and Music::CD as in Class::DBI pod.
   sub init {
+      super;
+      $self->hub->config->add_field("db_class" => 'Kwiki::DB::DBI');
+      field db => -init => "\$self->hub->load_class('db')";
+
       $self->db->entity( artist => 'Music::Artist' );
       $self->db->entity(     cd => 'Music::CD'     );
       $self->connection("dbi:SQLite:dbfile.sqlt");
   }
 
   sub my_action {
-      $self->db->artist->create(...)
+      $self->cdb->artist->create(...)
   }
 
 =head1 DESCRIPTION
 
 This module privdes a bridge between L<Class::DBI> and L<Kwiki> programming
-environment. You could put this line in your plugin code:
-
-    const db_class => 'Kwiki::DB::ClassDBI';
-
-and there will be a convienent $self->db reference to an instantiated
-object which acts as the door to all your C<Class::DBI> based classes.
+environment. After adding C<Kwiki::DB::ClassDBI> into your C<plugins> file,
+there will be a convienent $self->hub->cdbi reference to an instantiated object
+which acts as the door to all your C<Class::DBI> based classes.
 
 Instead of using class name to access data, this module requires you give
 several "entity" names in the init phrase. Each entity has a short name, and a
 corresponding C<Class::DBI> based class name. Writing
 
-    $self->db->entity( artist => 'Music::Artist' );
+    $self->hub->cdbi->entity( artist => 'Music::Artist' );
 
 would create a object held in $self->db->artist, and delegates all methods
 to C<Music::Artist>. So these two lines are doing the same work:
 
-    $self->db->artist->create({ artistid => 1, name => 'U2' });
+    $self->hub->cdbi->artist->create({ artistid => 1, name => 'U2' });
     Music::Artist->create({ artistid => 1, name => 'U2' });
 
 They return the same type of value, because $self->db->artist only
